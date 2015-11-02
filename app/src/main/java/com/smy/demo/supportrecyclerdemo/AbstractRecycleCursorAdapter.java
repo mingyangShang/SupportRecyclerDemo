@@ -14,8 +14,8 @@ import android.widget.Filterable;
 /**
  * Created by starkshang on 2015/10/29.
  */
-public abstract class AbstractRecycleCursorAdapter extends SupportRecyclerView.Adapter<SupportRecyclerView.SupportViewHolder> implements Filterable,
-        RecyclerViewCursorFilter.CursorFilterClient {
+public abstract class AbstractRecycleCursorAdapter extends SupportRecyclerView.SupportAdapter
+    implements RecyclerViewCursorFilter.CursorFilterClient{
 
     /**
      * Call when bind view with the cursor
@@ -100,6 +100,7 @@ public abstract class AbstractRecycleCursorAdapter extends SupportRecyclerView.A
      *                Currently it accept {@link #FLAG_REGISTER_CONTENT_OBSERVER}.
      */
     public AbstractRecycleCursorAdapter(Context context, Cursor c, int flags) {
+        super(context,null,null);
         init(context, c, flags);
     }
 

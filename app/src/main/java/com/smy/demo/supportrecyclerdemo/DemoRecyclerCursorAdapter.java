@@ -42,7 +42,7 @@ public class DemoRecyclerCursorAdapter extends AbstractRecycleCursorAdapter{
     public static class DemoViewHolder extends SupportRecyclerView.SupportViewHolder{
         public TextView tv;
         public DemoViewHolder(View view){
-            super(view,null,null);
+            super(view);
             tv = (TextView) view.findViewById(R.id.tv);
         }
     }

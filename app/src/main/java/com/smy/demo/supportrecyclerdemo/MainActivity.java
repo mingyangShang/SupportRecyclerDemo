@@ -51,39 +51,13 @@ public class MainActivity extends AppCompatActivity implements SupportRecyclerVi
         mRecyclerView.setEmptyView(findViewById(R.id.empty_view));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new DemoRecyclerCursorAdapter(this, mDbHelper.queryAll());
+        mAdapter.setOnItemClickListener(this);
+        mAdapter.setOnItemLongClickListener(this);
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setOnItemClickListener(this);
         mRecyclerView.setOnItemLongClickListener(this);
-
-        IntentFilter filter = new IntentFilter("chat");
-        filter.addDataScheme("chat");
-        filter.addDataAuthority("chatroom", null);
-        filter.addDataPath("7777", PatternMatcher.PATTERN_LITERAL);
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-
-
-        IntentFilter filter1 = new IntentFilter("chat");
-        filter1.addDataScheme("chat");
-        filter1.addDataPath("7778", PatternMatcher.PATTERN_LITERAL);
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver2,filter1);
     }
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String str = intent.toUri(0);
-            Log.e(TAG,"receive"+":"+str);
-        }
-    };
-
-    private BroadcastReceiver receiver2 = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String str = intent.toUri(0);
-            Log.e(TAG,"receive2"+":"+str);
-        }
-    };
 
     private void initData() {
         mDbHelper.insertUser(new User("user1", 20));
@@ -103,14 +77,10 @@ public class MainActivity extends AppCompatActivity implements SupportRecyclerVi
 
     // insert data
     public void insert(View view) {
-        /*initData();
+        initData();
         Toast.makeText(this,"INSERT",Toast.LENGTH_SHORT).show();
         Log.e(TAG,"INSERT");
-        mAdapter.getCursor().requery();*/
-        Intent intent = new Intent("chat");
-        intent.setData(Uri.parse("chat://chatroom/7777"));
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
+        mAdapter.getCursor().requery();
     }
 
     //delete all data

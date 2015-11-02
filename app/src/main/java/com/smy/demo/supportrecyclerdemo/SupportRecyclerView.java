@@ -6,7 +6,10 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Adapter;
+
+import java.util.List;
 
 /**
  * Created by starkshang on 2015/10/29.
@@ -25,11 +28,11 @@ public class SupportRecyclerView extends RecyclerView {
                 if(adapter.getItemCount() == 0) {
                     Log.e("smy","adapter visible");
                     emptyView.setVisibility(View.VISIBLE);
-//                    SupportRecyclerView.this.setVisibility(View.GONE);
+                    SupportRecyclerView.this.setVisibility(View.GONE);
                 } else {
                     Log.e("smy","adapter gone");
                     emptyView.setVisibility(View.GONE);
-//                    SupportRecyclerView.this.setVisibility(View.VISIBLE);
+                    SupportRecyclerView.this.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -84,35 +87,70 @@ public class SupportRecyclerView extends RecyclerView {
     }
 
     /**ViewHolder that support click and longclick event*/
-    public static class SupportViewHolder extends RecyclerView.ViewHolder implements OnClickListener,OnLongClickListener{
+    public static class SupportViewHolder extends RecyclerView.ViewHolder{
+
+        public SupportViewHolder(View itemView){
+            super(itemView);
+        }
+    }
+
+    public static abstract class SupportAdapter extends RecyclerView.Adapter<SupportViewHolder>
+            implements OnClickListener, OnLongClickListener{
 
         private OnRecyclerViewItemClickListener onClickListener;
         private OnRecyclerViewItemLongClickListener onLongClickListener;
 
-        public SupportViewHolder(View itemView,OnRecyclerViewItemClickListener clickListener,
-                                 OnRecyclerViewItemLongClickListener longClickListener){
-            super(itemView);
-            this.onClickListener = clickListener;
-            this.onLongClickListener = longClickListener;
-            this.itemView.setOnClickListener(this);
-            this.itemView.setOnLongClickListener(this);
+        protected Context mContext;
+
+        private int itemPos = -1;
+
+        public void setOnItemClickListener(OnRecyclerViewItemClickListener itemClickListener){
+            this.onClickListener = itemClickListener;
+        }
+        public void setOnItemLongClickListener(OnRecyclerViewItemLongClickListener itemLongClickListener){
+            this.onLongClickListener = itemLongClickListener;
+        }
+
+        public SupportAdapter(Context context){
+            this.mContext = context;
+        }
+
+
+        public SupportAdapter(Context context,OnRecyclerViewItemClickListener itemClickListener,
+                              OnRecyclerViewItemLongClickListener itemLongClickListener){
+            this.mContext = context;
+            this.onClickListener = itemClickListener;
+            this.onLongClickListener = itemLongClickListener;
+        }
+
+        @Override
+        public void onBindViewHolder(SupportViewHolder holder, int position, List<Object> payloads) {
+            super.onBindViewHolder(holder, position, payloads);
+            itemPos = position;
+            holder.itemView.setOnClickListener(new RecyclerItemClickListener(position,this.onClickListener));
+            holder.itemView.setOnLongClickListener(new RecyclerItemLongClickListener(position,this.onLongClickListener));
+        }
+
+        @Override
+        public SupportViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return null;
         }
 
         @Override
         public void onClick(View v) {
-            if(this.onClickListener != null){
-                this.onClickListener.onRecyclerViewItemClick(v,getAdapterPosition());
-            }
+
         }
 
         @Override
         public boolean onLongClick(View v) {
             if(this.onLongClickListener != null){
-                return this.onLongClickListener.onRecyclerViewItemLongClick(v,getAdapterPosition());
+                this.onLongClickListener.onRecyclerViewItemLongClick(v,itemPos);
             }
             return false;
         }
     }
+
+
 
     /**on item click listener*/
     public interface OnRecyclerViewItemClickListener{
@@ -123,5 +161,43 @@ public class SupportRecyclerView extends RecyclerView {
     public interface OnRecyclerViewItemLongClickListener{
         boolean onRecyclerViewItemLongClick(View view,int pos);
     }
+
+    public static class RecyclerItemClickListener implements OnClickListener{
+
+        private int mPos;
+        private OnRecyclerViewItemClickListener mClickListener;
+
+        public RecyclerItemClickListener(int position,OnRecyclerViewItemClickListener clickListener){
+            this.mPos = position;
+            this.mClickListener = clickListener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(this.mClickListener != null){
+                this.mClickListener.onRecyclerViewItemClick(v,this.mPos);
+            }
+        }
+    }
+
+
+    public static class RecyclerItemLongClickListener implements OnLongClickListener{
+        private int mPos;
+        private OnRecyclerViewItemLongClickListener mLongClickListener;
+
+        public RecyclerItemLongClickListener(int position,OnRecyclerViewItemLongClickListener longClickListener){
+            this.mPos = position;
+            this.mLongClickListener = longClickListener;
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            if(this.mLongClickListener != null){
+                return this.mLongClickListener.onRecyclerViewItemLongClick(v,mPos);
+            }
+            return false;
+        }
+    }
+
 
 }
